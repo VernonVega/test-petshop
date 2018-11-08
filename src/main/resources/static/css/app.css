@@ -1,0 +1,7 @@
+.chat-add {
+    background-image: url('../images/chat_add.png');
+}
+
+div#output {
+    margin: 100px;
+}
