@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="ClientMapper">
+    <resultMap type="Client" id="ClientResult">
+        <id property="clientId" column="clientId"/>
+        <result property="clientName" column="clientName"/>
+        <result property="clientPhone" column="clientPhone"/>
+        <result property="clientEmail" column="clientEmail"/>
+        <result property="clientIsWholesale" column="clientIsWholesale"/>
+    </resultMap>
+
+    <select id="selectClientById" parameterType="int" resultMap="ClientResult">
+        SELECT *
+        FROM client
+        WHERE clientId = #{clientId};
+    </select>
+
+    <select id="selectAllClients" resultMap="ClientResult">
+        SELECT *
+        FROM client
+        LEFT JOIN clientAddress USING (clientId)
+        WHERE true
+        <if test = "clientId != null">
+          AND clientId = #{clientId}
+        </if>
+        <if test = "start != null">
+          LIMIT #{limit} OFFSET #{start}
+        </if>
+        ORDER BY clientId;
+    </select>
+
+    <insert id="addClient" parameterType="Client">
+        INSERT INTO client
+        (clientName, clientPhone, clientEmail, clientIsWholesale, age)
+        VALUES
+        (#{clientName}, #{clientPhone}, #{clientEmail}, #{clientIsWholesale}, #{age});
+    </insert>
+
+    <insert id="addAddress" parameterType="ClientAddress">
+        INSERT INTO clientAddress
+        (clientId, clientAddress, clientAddressCity)
+        VALUES
+        (#{clientId}, #{clientAddress}, #{clientAddressCity});
+    </insert>
+
+    <update id="updateClient" parameterType="Client">
+        UPDATE client SET
+        clientName = #{clientName},
+        clientPhone = #{clientPhone},
+        clientEmail = #{clientEmail}
+        WHERE clientId = #{clientId}
+    </update>
+
+    <delete id="deleteClientById" parameterType="long">
+        DELETE FROM client
+        WHERE
+        <if test = "clientId != null">
+            clientId = #{clientId}
+        </if>
+        <if test = "clientPhone != null">
+            clientPhone = #{clientPhone}
+        </if>
+    </delete>
+</mapper>

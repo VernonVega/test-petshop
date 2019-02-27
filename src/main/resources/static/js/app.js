@@ -1,65 +1,88 @@
 Ext.onReady(function () {
 
-  Ext.define('evgkit.model.Chat', {
+  Ext.define('evgkit.model.Client', {
     extend: 'Ext.data.Model',
     fields: [
-      {name: 'id', type: 'int'},
-      {name: 'enabled', type: 'boolean'},
-      {name: 'title', type: 'string'},
-      {name: 'type', type: 'string'}
+      {name: 'clientId', type: 'int'},
+      {name: 'clientName', type: 'string'},
+      {name: 'clientPhone', type: 'string'},
+      {name: 'clientEmail', type: 'string'},
+      {name: 'clientIsWholesale', type: 'int'},
+      {name: 'clientAddress', type: 'string'}
     ]
   });
 
-  Ext.define('evgkit.store.Chats', {
+  Ext.define('evgkit.store.Clients', {
     extend: 'Ext.data.Store',
-    model: 'evgkit.model.Chat',
-    fields: ['id', 'enabled', 'title', 'type'],
+    model: 'evgkit.model.Client',
+    fields: ['clientId', 'clientName', 'clientPhone', 'clientEmail', 'clientIsWholesale'],
     proxy: {
       type: 'ajax',
-      url: '/api/v1/chats',
+      url: '/api/v1/clients',
       method: 'GET',
       reader: {
         type: 'json',
-        root: 'chats'
+        root: 'clients'
       }
     },
     autoLoad: true
   });
 
-  Ext.define('evgkit.view.ChatsList', {
+  Ext.define('evgkit.view.ClientsList', {
     extend: 'Ext.grid.Panel',
-    alias: 'widget.chatslist',
-    title: 'Chats List',
-    store: 'Chats',
+    alias: 'widget.clientslist',
+    title: 'Client List',
+    store: 'Clients',
     initComponent: function () {
       this.tbar = [{
-        text: 'Add Chat',
+        text: 'Add Client',
         action: 'add',
-        iconCls: 'chat-add'
-      }];
+        iconCls: 'client-add'
+      },
+        {
+          text: 'Refresh Client',
+          action: 'refresh',
+          iconCls: 'client-add'
+        }
+      ];
       this.columns = [
         {
-          header: 'ID',
-          dataIndex: 'id',
+          header: '# Клиента',
+          dataIndex: 'clientId',
           flex: 1
         },
         {
-          header: 'Enabled',
-          dataIndex: 'enabled',
+          header: 'Имя',
+          dataIndex: 'clientName',
+          // flex: 1
+        },
+        {
+          header: 'Телефон',
+          dataIndex: 'clientPhone',
+          // flex: 1
+        },
+        {
+          header: 'Имейл',
+          dataIndex: 'clientEmail',
+          // flex: 1
+        },
+        {
+          header: 'Возраст',
+          dataIndex: 'age',
+          // flex: 1
+        },
+        {
+          header: 'Опт/Розн',
+          dataIndex: 'clientIsWholesale',
           flex: 1,
           xtype: 'booleancolumn',
           trueText: 'Yes',
           falseText: 'No',
         },
         {
-          header: 'Title',
-          dataIndex: 'title',
-          flex: 1
-        },
-        {
-          header: 'Type',
-          dataIndex: 'type',
-          flex: 1
+          header: 'Город',
+          dataIndex: 'clientAddress',
+          // flex: 1
         },
         {
           header: 'Action', width: 50, renderer: function (v, m, r) {
@@ -69,29 +92,29 @@ Ext.onReady(function () {
               Ext.widget('image', {
                 renderTo: id,
                 name: 'delete',
-                src: 'images/chat_delete.png',
+                src: 'images/client_delete.png',
                 listeners: {
                   afterrender: function (me) {
                     me.getEl().on('click', function () {
-                      var grid = Ext.ComponentQuery.query('chatslist')[0];
+                      var grid = Ext.ComponentQuery.query('clientslist')[0];
                       if (grid) {
                         var sm = grid.getSelectionModel();
                         var rs = sm.getSelection();
                         if (!rs.length) {
-                          Ext.Msg.alert('Info', 'No Chat Selected');
+                          Ext.Msg.alert('Info', 'No Client Selected');
                           return;
                         }
-                        Ext.Msg.confirm('Remove Chat',
+                        Ext.Msg.confirm('Remove Client',
                           'Are you sure you want to delete?',
                           function (button) {
                             if (button === 'yes') {
-                              var chat = rs[0].getData();
+                              var client = rs[0].getData();
                               Ext.Ajax.request({
-                                url: '/api/v1/chats',
+                                url: '/api/v1/clients',
                                 method: 'DELETE',
-                                jsonData: chat,
+                                jsonData: client,
                                 success: function (response) {
-                                  var grid = Ext.ComponentQuery.query('chatslist')[0];
+                                  var grid = Ext.ComponentQuery.query('clientslist')[0];
                                   grid.getStore().load();
                                 }
                               });
@@ -111,11 +134,11 @@ Ext.onReady(function () {
     }
   });
 
-  Ext.define('evgkit.view.ChatsForm', {
+  Ext.define('evgkit.view.ClientsForm', {
     extend: 'Ext.window.Window',
-    alias: 'widget.chatsform',
-    title: 'Add Chat',
-    width: 350,
+    alias: 'widget.clientsform',
+    title: 'Add Client',
+    width: 450,
     layout: 'fit',
     resizable: false,
     closeAction: 'hide',
@@ -136,22 +159,39 @@ Ext.onReady(function () {
         xtype: 'textfield',
         anchor: '100%'
       },
-      items: [{
-        name: 'id',
-        fieldLabel: 'ID',
-      }, {
-        name: 'enabled',
-        fieldLabel: 'Enabled',
+      items: [
+      // {
+      //   name: 'clientId',
+      //   fieldLabel: 'clientId',
+      // },
+      {
+        name: 'clientName',
+        fieldLabel: 'Имя',
+      },
+      {
+        name: 'clientPhone',
+        fieldLabel: 'Телефон',
+      },
+      {
+        name: 'clientEmail',
+        fieldLabel: 'Имейл',
+      },
+      {
+        name: 'age',
+        fieldLabel: 'Возраст',
+      },
+      {
+        name: 'clientIsWholesale',
+        fieldLabel: 'Опт/Розн',
         xtype: 'checkboxfield',
         inputValue: 'true',
         uncheckedValue: 'false'
-      }, {
-        name: 'title',
-        fieldLabel: 'Title'
-      }, {
-        name: 'type',
-        fieldLabel: 'Type'
-      }]
+      },
+      {
+        name: 'clientCity',
+        fieldLabel: 'Город',
+      }
+      ]
     }],
     buttons: [{
       text: 'OK',
@@ -169,32 +209,36 @@ Ext.onReady(function () {
     }]
   });
 
-  Ext.define('evgkit.controller.Chats', {
-    extend: 'Ext.app.Controller',
-    stores: ['Chats'],
-    views: ['ChatsList', 'ChatsForm'],
-    refs: [{
-      ref: 'formWindow',
-      xtype: 'chatsform',
-      selector: 'chatsform',
+  Ext.define('evgkit.controller.Clients', {
+      extend: 'Ext.app.Controller',
+      stores: ['Clients'],
+      views: ['ClientsList', 'ClientsForm'],
+      refs: [{
+    ref: 'formWindow',
+      xtype: 'clientsform',
+      selector: 'clientsform',
       autoCreate: true
     }],
     init: function () {
       this.control({
-        'chatslist > toolbar > button[action=add]': {
+        'clientslist > toolbar > button[action=add]': {
           click: this.showAddForm
         },
-        'chatslist': {
+        'clientslist': {
           itemdblclick: this.onRowdblclick
         },
-        'chatsform button[action=add]': {
-          click: this.doAddChat
+        'clientsform button[action=add]': {
+          click: this.doAddClient
+        },
+        'clientslist > toolbar > button[action=refresh]': {
+          // click: this.showAllClients
+          click:  this.refreshClient
         }
       });
     },
     onRowdblclick: function (me, record, item, index) {
       var win = this.getFormWindow();
-      win.setTitle('Edit Chat');
+      win.setTitle('Edit Client');
       win.setAction('edit');
       win.setRecordIndex(index);
       win.down('form').getForm().setValues(record.getData());
@@ -202,18 +246,18 @@ Ext.onReady(function () {
     },
     showAddForm: function () {
       var win = this.getFormWindow();
-      win.setTitle('Add Chat');
+      win.setTitle('Add Client');
       win.setAction('add');
       win.down('form').getForm().reset();
       win.show();
     },
-    doAddChat: function () {
+    doAddClient: function () {
       var win = this.getFormWindow();
-      var store = this.getChatsStore();
+      var store = this.getClientsStore();
       var values = win.down('form').getValues();
 
       var action = win.getAction();
-      var url = '/api/v1/chats';
+      var url = '/api/v1/clients';
       var method = 'POST';
       if (action === 'edit') {
         method = 'PUT';
@@ -226,17 +270,43 @@ Ext.onReady(function () {
           store.load();
         }
       });
-      win.close();
-    }
+      // win.close();
+    },
+
+    // showAllClients: function () {
+    //   var win = this.getFormWindow();
+    //   // win.setTitle('Add Client');
+    //   win.setAction('refresh');
+    //   win.down('form').getForm().reset();
+    //   this.refreshClient;
+    // },
+    refreshClient: function () {
+      var win = this.getFormWindow();
+      var store = this.getClientsStore();
+      var values = win.down('form').getValues();
+
+      var url = '/api/v1/clients';
+      var method = 'GET';
+
+      Ext.Ajax.request({
+        url: url,
+        method: method,
+        jsonData: values,
+        success: function (response) {
+          store.load();
+        }
+      });
+      // win.close();
+    },
   });
 
   Ext.application({
     name: 'evgkit',
-    controllers: ['Chats'],
+    controllers: ['Clients'],
     launch: function () {
-      Ext.widget('chatslist', {
-        width: 500,
-        height: 300,
+      Ext.widget('clientslist', {
+        width: 900,
+        height: 400,
         renderTo: 'output'
       });
     }

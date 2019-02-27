@@ -8,6 +8,6 @@
     </typeAliases>
 
     <mappers>
-        <mapper resource="mappers/chat.xml"/>
+        <mapper resource="mappers/client.xml"/>
     </mappers>
 </configuration>
