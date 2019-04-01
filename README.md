@@ -1,6 +1,8 @@
 # test-petshop
 
-Приложение сделано на spring-boot. Запускается через maven goal:
+Приложение сделано на spring-boot. 
+В application.properties нужно правильно сконфигурировать доступ к Postgres DB. Схема описана в V1__init.sql
+Запускается приложение через maven goal:
 mvn spring-boot:run
 
 Справочник клиентов
